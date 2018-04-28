@@ -88,6 +88,47 @@ GROUP BY p.amount
 ORDER BY last_name asc;
 
 -- 7a. The music of Queen and Kris Kristofferson have seen an unlikely resurgence. As an unintended consequence, films starting with the letters `K` and `Q` have also soared in popularity. Use subqueries to display the titles of movies starting with the letters `K` and `Q` whose language is English. 
+SELECT title FROM film
+WHERE language_id IN(
+	SELECT language_id
+    FROM language
+    WHERE name = "English"
+)
+AND title LIKE "K%"
+OR title LIKE "%Q";
+
+-- 7b. Use subqueries to display all actors who appear in the film `Alone Trip`.
+
+SELECT first_name, last_name from actor
+WHERE actor_id IN(
+	SELECT actor_id
+    FROM film_actor
+    WHERE film_id IN(
+		SELECT film_id
+        FROM film
+        WHERE title = "Alone Trip"
+        )
+);
+    
+ -- 7c. You want to run an email marketing campaign in Canada, for which you will need the names and email addresses of all Canadian customers. Use joins to retrieve this information.
+SELECT c.first_name, c.last_name, c.email FROM customer c
+join address a ON c.address_id = a.address_id
+join city ci ON ci.city_id = a.city_id
+join country co on co.country_id = ci.country_id
+WHERE co.country = "Canada";
+
+-- 7d. Sales have been lagging among young families, and you wish to target all family movies for a promotion. Identify all movies categorized as famiy films.
+SELECT title FROM film
+WHERE Film_id IN(
+	SELECT film_id
+	FROM film_category
+	WHERE category_id IN(
+		SELECT category_id
+		FROM category
+		WHERE name = "Children")
+        );
+
+-- 7e. Display the most frequently rented movies in descending order.
 
 
 
