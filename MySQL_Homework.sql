@@ -129,6 +129,41 @@ WHERE Film_id IN(
         );
 
 -- 7e. Display the most frequently rented movies in descending order.
+SELECT title, COUNT(*) rentals FROM film f
+JOIN inventory i on f.film_id = i.film_id
+JOIN rental r on i.inventory_id = r.inventory_id
+GROUP BY r.inventory_id
+ORDER BY rentals desc;
 
+-- 7f. Write a query to display how much business, in dollars, each store brought in.
+SELECT s.store_id, a.address, ci.city, co.country, sum(p.amount)
+FROM store s, staff st, payment p, address a, country co, city ci
+WHERE s.store_id = st.store_id AND ci.city_id = a.city_id AND ci.country_id = co.country_id AND s.address_id = a.address_id AND st.staff_id = p.staff_id
+GROUP BY st.store_id, a.address, ci.city, co.country;
 
+-- 7g. Write a query to display for each store its store ID, city, and country.
+SELECT s.store_id, a.address, ci.city, co.country
+FROM store s, staff st, address a, country co, city ci
+WHERE s.store_id = st.store_id AND ci.city_id = a.city_id AND ci.country_id = co.country_id AND s.address_id = a.address_id
+GROUP BY st.store_id, a.address, ci.city, co.country;
 
+-- 7h. List the top five genres in gross revenue in descending order
+SELECT c.name, SUM(p.amount) AS 'gross revenue'
+FROM film f, category c, film_category fc, inventory i, payment p, rental r
+WHERE c.category_id = fc.category_id AND fc.category_id = f.film_id AND f.film_id = i.film_id AND i.inventory_id = r.inventory_id AND r.rental_id = p.rental_id
+GROUP BY name
+ORDER BY sum(p.amount) Desc LIMIT 5;
+
+-- 8a. In your new role as an executive, you would like to have an easy way of viewing the Top five genres by gross revenue. Use the solution from the problem above to create a view. If you haven't solved 7h, you can substitute another query to create a view.
+CREATE VIEW top_five_genres AS
+SELECT c.name, SUM(p.amount) AS 'gross revenue'
+FROM film f, category c, film_category fc, inventory i, payment p, rental r
+WHERE c.category_id = fc.category_id AND fc.category_id = f.film_id AND f.film_id = i.film_id AND i.inventory_id = r.inventory_id AND r.rental_id = p.rental_id
+GROUP BY name
+ORDER BY sum(p.amount) Desc LIMIT 5;
+
+-- 8b. How would you display the view that you created in 8a?
+SELECT * FROM top_five_genres;
+
+-- 8c. You find that you no longer need the view `top_five_genres`. Write a query to delete it.
+DROP VIEW top_five_genres;
