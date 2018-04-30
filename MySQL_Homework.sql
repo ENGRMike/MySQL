@@ -62,29 +62,28 @@ SELECT * FROM staff s
 JOIN address a ON s.address_id = a.address_id;
 
 -- 6b. Use `JOIN` to display the total amount rung up by each staff member in August of 2005. Use tables `staff` and `payment`. 
-SELECT s.staff_id, s.first_name, s.last_name, SUM(p.amount) August_05_Totals FROM staff s
+SELECT s.first_name, s.last_name, SUM(p.amount) August_05_Totals FROM staff s
 JOIN payment p ON s.staff_id = p.staff_id
 WHERE p.payment_date LIKE "2005-08%"
-GROUP BY s.staff_id;
+GROUP BY p.staff_id;
 
 -- 6c. List each film and the number of actors who are listed for that film. Use tables `film_actor` and `film`. Use inner join.
-SELECT f.title, COUNT(*) actor_count
+SELECT f.title, COUNT(actor_id) AS 'Actor Count'
 FROM film_actor fa
 JOIN film f ON fa.film_id = f.film_id
-GROUP BY actor_id
-ORDER BY actor_count desc;
+GROUP BY title asc;
 
 -- 6d. How many copies of the film `Hunchback Impossible` exist in the inventory system?
-SELECT f.title, COUNT(*) inventory_count
+SELECT COUNT(i.film_id) AS 'Inventory Count'
 FROM inventory i
 JOIN film f ON f.film_id = i.film_id
 WHERE f.title LIKE "Hunchback Impossible";
 
 -- 6e. Using the tables `payment` and `customer` and the `JOIN` command, list the total paid by each customer. List the customers alphabetically by last name:
-SELECT first_name, last_name, COUNT(*) total_payment
+SELECT first_name, last_name, SUM(amount) AS 'Total Payment'
 FROM customer c
 JOIN payment p on c.customer_id = p.customer_id
-GROUP BY p.amount
+GROUP BY last_name, first_name
 ORDER BY last_name asc;
 
 -- 7a. The music of Queen and Kris Kristofferson have seen an unlikely resurgence. As an unintended consequence, films starting with the letters `K` and `Q` have also soared in popularity. Use subqueries to display the titles of movies starting with the letters `K` and `Q` whose language is English. 
@@ -94,12 +93,11 @@ WHERE language_id IN(
     FROM language
     WHERE name = "English"
 )
-AND title LIKE "K%"
-OR title LIKE "%Q";
+AND (title LIKE "K%" OR title LIKE "Q%")
+ORDER BY title ASC;
 
 -- 7b. Use subqueries to display all actors who appear in the film `Alone Trip`.
-
-SELECT first_name, last_name from actor
+SELECT CONCAT(first_name, ' ', last_name) AS 'ACTORS' FROM actor
 WHERE actor_id IN(
 	SELECT actor_id
     FROM film_actor
@@ -111,23 +109,23 @@ WHERE actor_id IN(
 );
     
  -- 7c. You want to run an email marketing campaign in Canada, for which you will need the names and email addresses of all Canadian customers. Use joins to retrieve this information.
-SELECT c.first_name, c.last_name, c.email FROM customer c
+SELECT c.first_name, c.last_name, c.email, ci.city, co.country FROM customer c
 join address a ON c.address_id = a.address_id
 join city ci ON ci.city_id = a.city_id
 join country co on co.country_id = ci.country_id
 WHERE co.country = "Canada";
 
--- 7d. Sales have been lagging among young families, and you wish to target all family movies for a promotion. Identify all movies categorized as famiy films.
-SELECT title FROM film
-WHERE Film_id IN(
+-- 7d. Sales have been lagging among young families, and you wish to target all family movies for a promotion. Identify all movies categorized as family films.
+SELECT title, rating, description FROM film
+WHERE rating IN ('G', 'PG') AND Film_id IN(
 	SELECT film_id
 	FROM film_category
 	WHERE category_id IN(
 		SELECT category_id
 		FROM category
-		WHERE name = "Children")
+		WHERE name = "Family")
         );
-
+        
 -- 7e. Display the most frequently rented movies in descending order.
 SELECT title, COUNT(*) rentals FROM film f
 JOIN inventory i on f.film_id = i.film_id
